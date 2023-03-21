@@ -13,6 +13,7 @@ class CurrencyData:
             self, start_date: str, end_date: str,
             base_currency: str, response_currency: str
     ) -> Dict:
+        """Get currency data from the API"""
         try:
             request_url_currency_data = "https://api.apilayer.com/" \
                                         "exchangerates_data/timeseries?" \

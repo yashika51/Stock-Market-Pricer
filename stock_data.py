@@ -17,9 +17,7 @@ class StockData:
     ) -> int:
         """If the market was closed on start date,
         we make one more request to the day
-        beofre outside the range, for any
-        closed days in between intervals we can just
-        existing logic"""
+        before the start date"""
         try:
             previous_datetime = date_to_datetime - timedelta(1)
             previous_processed_date = previous_datetime.strftime("%Y-%m-%d")
@@ -31,6 +29,7 @@ class StockData:
             response = requests.get(request_url, params=params).json()
             close_date_amount = response.get("close", 0)
             return close_date_amount
+
         except Exception as e:
             # will use logging with a proper setup
             raise MethodException(f"Exception {e} occurred while running"
@@ -39,6 +38,7 @@ class StockData:
     def get_stock_data_from_api(
         self, symbol: str, start_date: str, end_date: str
     ) -> List[dict]:
+        """Get stock prices from marketstack API"""
         try:
             params = {"access_key": self.access_key}
             request_url_stock_data = f"http://api.marketstack.com/v1/eod?" \
@@ -96,6 +96,7 @@ class StockData:
         response_currency: str,
         symbol: str,
     ) -> Dict:
+        """Convert stock prices to request currency price"""
         try:
             processed_currency_data = self.currency_data.\
                 get_currency_data_from_api(
@@ -110,8 +111,7 @@ class StockData:
             for data in processed_stock_data:
                 date = data.get("date")
                 stock_price = data.get("amount_close")
-
-                currency_conversion = processed_currency_data["date"]
+                currency_conversion = processed_currency_data[date]
                 converted_stock_price.update({
                     date: stock_price * currency_conversion
                 })

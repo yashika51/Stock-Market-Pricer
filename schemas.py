@@ -10,6 +10,6 @@ class StockPriceRequest(BaseModel):
 
 
 class StockPriceResponse(BaseModel):
-    stock_symbol: str
+    symbol: str
     currency: str
-    closing_price: Dict[str, int]
+    daily_close: Dict[str, int]
