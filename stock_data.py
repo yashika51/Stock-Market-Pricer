@@ -1,11 +1,13 @@
 import os
 from datetime import datetime, timedelta
-from typing import Dict, List
+from typing import Dict
 
 import requests
 
 from currency_data import CurrencyData
 from exceptions import MethodException
+from utils import (convert_datetime_to_str_date, convert_str_date_to_datetime,
+                   increase_date)
 
 
 class StockData:
@@ -13,31 +15,32 @@ class StockData:
     currency_data = CurrencyData()
 
     def edge_case_market_closed_on_start_date(
-        self, symbol: str, date_to_datetime: datetime
+        self, symbol: str, current_date: datetime
     ) -> int:
         """If the market was closed on start date,
-        we make one more request to the day
+        we make request to the day
         before the start date"""
         try:
-            previous_datetime = date_to_datetime - timedelta(1)
+            previous_datetime = current_date - timedelta(1)
             previous_processed_date = previous_datetime.strftime("%Y-%m-%d")
 
-            request_url = f"http://api.marketstack.com/v1/eod/date" \
-                          f"{previous_processed_date}&symbol={symbol}"
+            request_url = "http://api.marketstack.com/v1/eod/" \
+                          f"{previous_processed_date}" \
+                          f"&symbol={symbol}"
 
             params = {"access_key": self.access_key}
             response = requests.get(request_url, params=params).json()
+
             close_date_amount = response.get("close", 0)
             return close_date_amount
 
         except Exception as e:
-            # will use logging with a proper setup
             raise MethodException(f"Exception {e} occurred while running"
                   f" edge_case_market_closed_on_start_date()")
 
     def get_stock_data_from_api(
         self, symbol: str, start_date: str, end_date: str
-    ) -> List[dict]:
+    ) -> Dict:
         """Get stock prices from marketstack API"""
         try:
             params = {"access_key": self.access_key}
@@ -52,39 +55,38 @@ class StockData:
             stock_data_json = stock_data_response.json()
             stock_data = stock_data_json.get("data", {})
 
-            stock_data_to_return = []  # type: ignore
+            stock_data_to_return = {}   # type: ignore
+            current_expected_date = start_date
+
             for data in stock_data:
-                date = data.get("date")
-                date_to_datetime = datetime.strptime(date,
-                                                     "%Y-%m-%dT%H:%M:%S+%f")
+                current_date = convert_datetime_to_str_date(
+                    convert_str_date_to_datetime(data.get("date"))
+                )
 
-                processed_date = date_to_datetime.strftime("%Y-%m-%d")
-
-                # assuming if the market was closed,
-                # it will return None in that case by default we use 0
-                amount_close = data.get("close", 0)
-
-                if amount_close == 0:
-                    # if the market was closed for some day,
-                    # use the previous day data
-                    amount_close = (
-                        stock_data_to_return[-1].get("close")
-                        if len(stock_data_to_return) >= 1
-                        else self.edge_case_market_closed_on_start_date(
-                            symbol, date_to_datetime
+                if current_date != current_expected_date:
+                    while current_date != current_expected_date:
+                        previous_price = list(stock_data_to_return.values())
+                        stock_data_to_return.update({
+                            current_expected_date: previous_price[-1]
+                            }
                         )
-                    )
+                        current_expected_date = increase_date(
+                            current_expected_date, 1)
+                        if current_date == current_expected_date:
+                            stock_data_to_return.update({
+                                current_date: data.get("close")
+                            })
+                    continue
 
-                stock_data_to_return_dict = {
-                    "date": processed_date,
-                    "amount_close": amount_close,
-                }
-
-                stock_data_to_return.append(stock_data_to_return_dict)
+                else:
+                    stock_data_to_return.update({
+                        current_date: data.get("close")
+                    })
+                    current_expected_date = increase_date(
+                        current_expected_date, 1)
             return stock_data_to_return
 
         except Exception as e:
-            # will use logging with a proper setup
             raise MethodException(f"Exception {e} occurred while running"
                   f" get_close_day_stock_data()")
 
@@ -103,14 +105,13 @@ class StockData:
                     start_date, end_date, base_currency,
                     response_currency
                 )
+
             processed_stock_data = self.get_stock_data_from_api(
                 symbol, start_date, end_date
             )
             converted_stock_price = {}
 
-            for data in processed_stock_data:
-                date = data.get("date")
-                stock_price = data.get("amount_close")
+            for date, stock_price in processed_stock_data.items():
                 currency_conversion = processed_currency_data[date]
                 converted_stock_price.update({
                     date: stock_price * currency_conversion
@@ -119,6 +120,5 @@ class StockData:
             return converted_stock_price
 
         except Exception as e:
-            # will use logging with a proper setup
             raise MethodException(f"Exception {e} occurred while running"
                   f" stock_data_with_conversion()")

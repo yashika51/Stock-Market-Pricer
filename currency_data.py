@@ -37,6 +37,5 @@ class CurrencyData:
             return currency_data_dict
 
         except Exception as e:
-            # will use logging with a proper setup
             raise MethodException(f"Exception {e} occurred while running"
                                   f" get_currency_data_from_api()")
