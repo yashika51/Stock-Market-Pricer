@@ -7,8 +7,8 @@ are predefined.
 ## Setup
 
 Create a new virtual environment either using conda or python venv, and install all the requirements
-from `requirements.txt` file. After that setup your credentials, create an `.env` file and add `MARKETSTACK_API_KEY` and `EXCHANGE_RATE_API`
-with the values.
+from `requirements.txt` file. After that, setup your credentials, create an `.env` file and add `MARKETSTACK_API_KEY` and `EXCHANGE_RATE_API`
+with their values.
 
 
 ## Consuming the API
@@ -65,7 +65,7 @@ Currently we are handling multiple cases for dates possible for example
     o Day-Month-Year with leading zeros and dots as separators (17.02.2009)
     o Month name Day, Year like this (February 17, 2009)
 
-But the input is in string format separated by "-" for example `10.01.2022-10.02.2022`. A better approach could be to use
+But the input is expected to be in string format separated by "-" for example `10.01.2022-10.02.2022`. A better approach could be to use
 datetime instead and separate inputs for start date and end date, this will also help to eliminate helper functions that are currently
 being used for processing dates from datetime to string and vice versa. We can modify `StockPriceRequest` in `schemas.py` to have
 two new fields `start_date` and `end_date` with type `datetime` and eliminate `date_range`. Also a better approach could be to make
