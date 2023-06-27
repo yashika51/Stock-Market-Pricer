@@ -61,12 +61,13 @@ on but the initial idea is to use the `http://api.marketstack.com/v1/eod/{previo
 ## Date Formats
 
 Currently we are handling multiple cases for dates possible for example
-    o Month-Day-Year with leading zeros (02/17/2009)
-    o Day-Month-Year with leading zeros and dots as separators (17.02.2009)
-    o Month name Day, Year like this (February 17, 2009)
+    - Month-Day-Year with leading zeros (02/17/2009)
+    - Day-Month-Year with leading zeros and dots as separators (17.02.2009)
+    - Month name Day, Year like this (February 17, 2009)
 
-But the input is expected to be in string format separated by "-" for example `10.01.2022-10.02.2022`. A better approach could be to use
-datetime instead and separate inputs for start date and end date, this will also help to eliminate helper functions that are currently
+But the input is expected to be in string format separated by "-" for example `10.01.2022-10.02.2022`.
+
+A better approach could be to use datetime instead and separate inputs for start date and end date, this will also help to eliminate helper functions that are currently
 being used for processing dates from datetime to string and vice versa. We can modify `StockPriceRequest` in `schemas.py` to have
 two new fields `start_date` and `end_date` with type `datetime` and eliminate `date_range`. Also a better approach could be to make
 it non optional and having the user add dates in request before calling the endpoint.
