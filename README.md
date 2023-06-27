@@ -1,10 +1,12 @@
 # Stock Close Day Prices
 
-This repo contains code for getting stocks close day prices based on the input currency.
+This repo contains the code for getting stocks close day prices based on the input currency. The code is written in Python and the APIs are built using FastAPI.
+There are also a few test cases written and can be found in `test.py`, these tests could be automated by using the same APIs for overall logic but for simplicity of the project and API rate limiting they
+are predefined.
 
 ## Setup
 
-Create a new virtual environment either using conda or pythong venv, and install all the requirements
+Create a new virtual environment either using conda or python venv, and install all the requirements
 from `requirements.txt` file. After that setup your credentials, create an `.env` file and add `MARKETSTACK_API_KEY` and `EXCHANGE_RATE_API`
 with the values.
 
@@ -12,7 +14,7 @@ with the values.
 ## Consuming the API
 
 You can test the API by Postman, run `uvicorn main:app --reload` command in the terminal
-and go to Postman, make a GET request to endpoint `http://127.0.0.1:8000/stock-close-prices`
+and go to Postman, make a `GET` request to endpoint `http://127.0.0.1:8000/stock-close-prices`
 and pass the request data in JSON format.
 
 Example Input:
