@@ -60,10 +60,11 @@ on but the initial idea is to use the `http://api.marketstack.com/v1/eod/{previo
 
 ## Date Formats
 
-Currently we are handling multiple cases for dates possible for example
-    - Month-Day-Year with leading zeros (02/17/2009)
-    - Day-Month-Year with leading zeros and dots as separators (17.02.2009)
-    - Month name Day, Year like this (February 17, 2009)
+Currently we are handling multiple cases for dates possible for example:
+
+- Month-Day-Year with leading zeros (02/17/2009)
+- Day-Month-Year with leading zeros and dots as separators (17.02.2009)
+- Month name Day, Year like this (February 17, 2009)
 
 But the input is expected to be in string format separated by "-" for example `10.01.2022-10.02.2022`.
 
