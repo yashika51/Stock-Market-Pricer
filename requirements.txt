@@ -1,4 +1,4 @@
-fastapi ==0.78.0
+fastapi ==0.109.1
 fastapi-cache2 ==0.1.8
 fastapi-pagination ==0.9.3
 gunicorn ==20.1.0
